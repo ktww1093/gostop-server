@@ -514,6 +514,37 @@ function sellItem(sellerId: string, cardId: string): string {
   return "ok";
 }
 
+function removePlayer(playerId: string): string {
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  if (idx === -1) return "플레이어를 찾을 수 없습니다.";
+
+  const player = state.players[idx];
+
+  state.turnOrder = state.turnOrder.filter((id) => id !== playerId);
+  if (state.currentTurnIndex >= state.turnOrder.length) {
+    state.currentTurnIndex = 0;
+  }
+
+  state.players.splice(idx, 1);
+  addLog('${player.name} 퇴장 (${state.players.length}/${MAX_PLAYERS})');
+
+  if (state.phase !== "waiting") {
+    state.phase = "waiting";
+    state.sellQueue = [];
+    state.sellerPlayerId = null;
+    for (const p of state.players) {
+      p.isReady = false;
+      p.status = "playing";
+      p.hand = [];
+      p.captured = [];
+      p.score = 0;
+    }
+    addLog("플레이어 퇴장으로 게임이 중단되고 대기 상태로 전환되었습니다.");
+  }
+
+  return "ok";
+}
+
 function endSelling() {
   if (state.phase !== "selling") return;
   addLog(`팔이 종료`);
