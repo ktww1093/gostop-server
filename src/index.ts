@@ -738,6 +738,14 @@ const server = http.createServer(async (req, res) => {
     return jsonResponse(res, { ok: true });
   }
 
+  // POST /leave → 플레이어 퇴장
+  if (url === "/leave" && method === "POST") {
+    const body = await getBody(req);
+    const result = removePlayer(String(body.playerId ?? ""));
+    return jsonResponse(res, { result });
+  }
+
+  
   // GET /hand/:playerId → 내 패
   if (url.startsWith("/hand/") && method === "GET") {
     const playerId = url.replace("/hand/", "");
